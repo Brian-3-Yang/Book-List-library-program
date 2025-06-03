@@ -1,0 +1,48 @@
+class Library:
+    def __init__(self, ID, bookList):
+        self.ID = ID
+        self.bookList = bookList
+
+    def showall(self):
+        for i in self.bookList:
+            i.show()
+
+    def add(self, book):
+        self.bookList.append(test(book))
+
+    def remove(self, book):
+        
+
+    def change(self, book):
+        pass
+
+    def filter(self):
+        pass
+
+class test:
+
+    
+    def __init__(self, space, position=None):
+        global counter
+        self.space = space
+        self.position = counter
+        counter += 1
+
+    def show(self):
+        print(self.space, self.position)
+
+counter = 0 
+"""
+test1 = test("cero")        
+test2 = test("uno")
+test3 = test("dos")
+test4 = test("tres")
+test5 = test("cuatro")
+"""
+bookList = [test("cero"), test("uno"), test("dos"), test("tres")]
+
+lib = Library("1", bookList)
+print("")
+
+lib.add("cuatro")
+lib.showall()    
