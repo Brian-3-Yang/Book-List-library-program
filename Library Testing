@@ -25,6 +25,45 @@ class Library:
         print("Here's what the current library list looks like")
         print(self.bookList)
             
+    def addBook(self):
+        new_window = Toplevel(window)  # Create a new window
+        new_window.title("New Window")
+        new_window.geometry("600x500")  
+        Label(new_window, text="Add Books").place(x=150,y=0)
+        Label(new_window, text="Name").place(x=30,y=250)
+        Label(new_window, text="Link").place(x=30,y=400)
+        Label(new_window, text="Description/Comments").place(x=350,y=100)
+
+        bookName = Entry(new_window, text="Insert title...").place(x=30,y=300)
+        link = Entry(new_window, text="Insert link...").place(x=30,y=450)
+        description = Entry(new_window, text="Insert description...").place(x=350,y=150)
+
+        Button(new_window, text="Cancel", command=nothing).place(x=400,y=350)
+        Button(new_window, text="Add", command=lambda: self.add(self.bookName.get())).place(x=500,y=350)
+
+
+    def add(self, title):   #Still requires work, maybe the books get saved into the csv in another button?
+        print(title)
+        with open ("bookList.csv", "a") as f:
+            f.write(f"{title}") 
+            f.write("\n")
+        #self.bookList.append(book) #Book is an object btw
+
+    def remove(self):
+        pass
+
+    def change(self):
+        pass
+
+    def filter(self):
+        pass
+
+    def test(self):
+        print("Works!")
+
+class addBook:
+    def __init__(self):
+        pass
 
     def addBook(self):
         new_window = Toplevel(window)  # Create a new window
@@ -35,27 +74,18 @@ class Library:
         Label(new_window, text="Link").place(x=30,y=400)
         Label(new_window, text="Description/Comments").place(x=350,y=100)
 
-        Entry(new_window, text="Insert...").place(x=30,y=300)
+        name = Entry(new_window, text="Insert...").place(x=30,y=300)
         Entry(new_window, text="Insert link...").place(x=30,y=450)
-        Entry(new_window, text="Insert description...", height=10).place(x=350,y=150)
+        Entry(new_window, text="Insert description...").place(x=350,y=150)
 
-        Button(new_window, text="Cancel", command=nothing).place(x=400,y=350)
+        Button(new_window, text="Cancel", command=lambda: self.search(name.get())).place(x=400,y=350)
         Button(new_window, text="Add", command=nothing).place(x=500,y=350)
 
+        
 
 
 
-    def add(self, book):
-        self.bookList.append(book) #Book is an object btw
 
-    def remove(self):
-        pass
-
-    def change(self):
-        pass
-
-    def filter(self):
-        pass
 
 class Book:
     def __init__(self, name, favourite=False, position=None):
@@ -80,21 +110,26 @@ def bookify(name, favourite=False):
 def nothing():
     #Nothing happens
     pass
+
+def read():
+    pass
+
 Librarby = Library(1)
 
 with open("bookList.csv", 'r') as f:
-    bl = []
+    bookList = []
     for line in f:
         line = line.strip()
         a = line.split(',')
-        bl.append(a)
+        bookList.append(a)
 
+"""
 for object in bl:
     name = object[1]
     favourite = bool(object[2]) #As long as object[2] = "", bool will return false.
     book = Book(name, favourite)
     Librarby.add(book)
-
+"""
 
 #Code
 #GUI settings
@@ -103,19 +138,26 @@ window.title("Library")
 window.geometry("650x650")
 
 #Objects initialize
+labelLibraryName = Label(window, text="Novels")
 
-
+buttonEscape = Button(window, text="Escape", command=nothing)
 buttonAdd = Button(window, text="Add", command=add)
 buttonRemove = Button(window, text="Remove", command=remove)
 
-buttonAdd.place(x=0,y=50)
-buttonRemove.place(x=100,y=50)
+buttonBook = Button(window, text="Book\ntest", command=read, width=2, height=5)
+
+entrySearch = Entry(window, text="Search...", width=25)
+
+
+labelLibraryName.place(x=200,y=0)
+
+buttonEscape.place(x=0, y=0)
+buttonAdd.place(x=450,y=30)
+buttonRemove.place(x=550, y=30)
+
+buttonBook.place(x=30,y=60)
+
+entrySearch.place(x=400,y=0)
+
 
 window.mainloop()
-
-#Saving objects to file
-
-#Stuff to do
-# Save the objects that are already in the library to a file
-#Idea: Save data to a file as text or something then when starting the program, read from said file to re-initialize the objects.
-# When running read the objects and restore them
