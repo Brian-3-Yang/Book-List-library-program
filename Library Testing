@@ -1,14 +1,6 @@
 import tkinter as tk
 from tkinter import *
 
-
-"""
-#Initializing books
-with open("bookList.csv", 'w') as f:
-    f.write("lotm,Lord of the Mysteries,True\n")
-    f.write("kino,Kino's Journey,\n")
-"""
-
 #Classes
 class Library:
     def __init__(self, ID):
@@ -34,9 +26,13 @@ class Library:
         Label(new_window, text="Link").place(x=30,y=400)
         Label(new_window, text="Description/Comments").place(x=350,y=100)
 
-        bookName = Entry(new_window, text="Insert title...").place(x=30,y=300)
-        link = Entry(new_window, text="Insert link...").place(x=30,y=450)
-        description = Entry(new_window, text="Insert description...").place(x=350,y=150)
+        self.bookName = Entry(new_window, text="Insert name...")
+        self.link = Entry(new_window, text="Insert link...")
+        self.description = Entry(new_window, text="Insert description...")
+
+        self.bookName.place(x=30,y=300)
+        self.link.place(x=30,y=450)
+        self.description.place(x=350,y=150)
 
         Button(new_window, text="Cancel", command=nothing).place(x=400,y=350)
         Button(new_window, text="Add", command=lambda: self.add(self.bookName.get())).place(x=500,y=350)
@@ -58,34 +54,11 @@ class Library:
     def filter(self):
         pass
 
+    def read(self, book):
+        self.bookList.append(book)
+
     def test(self):
         print("Works!")
-
-class addBook:
-    def __init__(self):
-        pass
-
-    def addBook(self):
-        new_window = Toplevel(window)  # Create a new window
-        new_window.title("New Window")
-        new_window.geometry("600x500")  
-        Label(new_window, text="Add Books").place(x=150,y=0)
-        Label(new_window, text="Name").place(x=30,y=250)
-        Label(new_window, text="Link").place(x=30,y=400)
-        Label(new_window, text="Description/Comments").place(x=350,y=100)
-
-        name = Entry(new_window, text="Insert...").place(x=30,y=300)
-        Entry(new_window, text="Insert link...").place(x=30,y=450)
-        Entry(new_window, text="Insert description...").place(x=350,y=150)
-
-        Button(new_window, text="Cancel", command=lambda: self.search(name.get())).place(x=400,y=350)
-        Button(new_window, text="Add", command=nothing).place(x=500,y=350)
-
-        
-
-
-
-
 
 class Book:
     def __init__(self, name, favourite=False, position=None):
@@ -123,13 +96,12 @@ with open("bookList.csv", 'r') as f:
         a = line.split(',')
         bookList.append(a)
 
-"""
-for object in bl:
+for object in bookList:
     name = object[1]
     favourite = bool(object[2]) #As long as object[2] = "", bool will return false.
     book = Book(name, favourite)
-    Librarby.add(book)
-"""
+    Librarby.read(book)
+
 
 #Code
 #GUI settings
@@ -158,6 +130,8 @@ buttonRemove.place(x=550, y=30)
 buttonBook.place(x=30,y=60)
 
 entrySearch.place(x=400,y=0)
+
+Librarby.showall()
 
 
 window.mainloop()
