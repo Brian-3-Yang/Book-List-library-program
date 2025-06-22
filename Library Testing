@@ -18,32 +18,30 @@ class Library:
         print(self.bookList)
             
     def addBook(self):
-        new_window = Toplevel(window)  # Create a new window
-        new_window.title("New Window")
-        new_window.geometry("600x500")  
-        Label(new_window, text="Add Books").place(x=150,y=0)
-        Label(new_window, text="Name").place(x=30,y=250)
-        Label(new_window, text="Link").place(x=30,y=400)
-        Label(new_window, text="Description/Comments").place(x=350,y=100)
+        addABook = Toplevel(window)  # Create a new window
+        addABook.title("Add Book")
+        addABook.geometry("600x500")  
+        Label(addABook, text="Add Books").place(x=150,y=0)
+        Label(addABook, text="Name").place(x=30,y=250)
+        Label(addABook, text="Link").place(x=30,y=400)
+        Label(addABook, text="Description/Comments").place(x=350,y=100)
 
-        self.bookName = Entry(new_window, text="Insert name...")
-        self.link = Entry(new_window, text="Insert link...")
-        self.description = Entry(new_window, text="Insert description...")
+        bookName = Entry(addABook, text="Insert name...", bg="white", fg="black")
+        link = Entry(addABook, text="Insert link...", bg="white", fg="black")
+        description = Entry(addABook, text="Insert description...", bg="white", fg="black")
 
-        self.bookName.place(x=30,y=300)
-        self.link.place(x=30,y=450)
-        self.description.place(x=350,y=150)
+        bookName.place(x=30,y=300)
+        link.place(x=30,y=450)
+        description.place(x=350,y=150)
 
-        Button(new_window, text="Cancel", command=nothing).place(x=400,y=350)
-        Button(new_window, text="Add", command=lambda: self.add(self.bookName.get())).place(x=500,y=350)
+        Button(addABook, text="Cancel", command=nothing).place(x=400,y=350)
+        Button(addABook, text="Add", command=lambda: self.add(bookName.get(), link.get(), description.get())).place(x=500,y=350)
 
-
-    def add(self, title):   #Still requires work, maybe the books get saved into the csv in another button?
+    def add(self, title, link=None, description=None, favourite=""):
         print(title)
         with open ("bookList.csv", "a") as f:
-            f.write(f"{title}") 
+            f.write(f"{title},{link},{description},{favourite}") 
             f.write("\n")
-        #self.bookList.append(book) #Book is an object btw
 
     def remove(self):
         pass
@@ -67,6 +65,9 @@ class Book:
 
     def show(self):
         print(self.name, self.position, "favourite:", self.favourite)
+
+    def hover(self, event):
+        pass
 
 
 #Functions
