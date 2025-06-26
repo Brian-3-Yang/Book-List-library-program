@@ -54,15 +54,6 @@ class Library(tk.Tk):
                 break
 
 
-        counter = 1
-        for i in self.bookGrid:
-            print(f"Row {counter}: {i}")
-            counter += 1
-
-
-
-
-
         #Objects initialize
         self.labelLibraryName = Label(self, text="Novels")
 
@@ -77,14 +68,15 @@ class Library(tk.Tk):
         coordinateX = self.coordinateX
         coordinateY = self.coordinateY
 
-        for row in range(0,3):              #Loops to place the rows and column
-            for column in range (0,11):          #Placeholder:self.bookList[column]
-                Button(self, text="Book\nTest", command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
+        for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
+            for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
+                print(column)
+                Button(self, text=column[0], #coloumn[0] is name of the novel
+                       command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
                 coordinateX = coordinateX + 50
             coordinateX = self.coordinateX
             coordinateY = coordinateY + 100
-            
-
+        
 
 
 
