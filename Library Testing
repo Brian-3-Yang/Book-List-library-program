@@ -19,6 +19,45 @@ class Library(tk.Tk):
         self.chosenFilter = StringVar()
         self.chosenFilter.set("Alphabetical")
 
+        #Initializing the bookList
+        with open("bookList.csv", 'r') as f:
+            self.bookList = []
+            for book in f:
+                book = book.strip()
+                a = book.split(',')
+                self.bookList.append(a)
+
+        #Ordering the booklist into a 2D array
+        row = 0
+        counter = 0
+        index = 0
+        self.bookGrid = [[],[],[]]
+
+        while counter <= 3:
+            print(self.bookList[index])
+            self.bookGrid[row].append(self.bookList[index])
+            counter += 1
+            index += 1
+
+            if counter == 3:
+                row += 1
+                print(row)
+
+            if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
+                print(self.bookList[index])
+                self.bookGrid[row].append(self.bookList[index])
+                break
+
+
+        counter = 1
+        for i in self.bookGrid:
+            print(f"Row {counter}: {i}")
+            counter += 1
+
+
+
+
+
         #Objects initialize
         self.labelLibraryName = Label(self, text="Novels")
 
@@ -33,20 +72,14 @@ class Library(tk.Tk):
         coordinateX = self.coordinateX
         coordinateY = self.coordinateY
 
-        for row in range(0,4):              #Loops to place the rows and column
-            for column in range (0,1):          #Placeholder:self.bookList[column]
+        for row in range(0,3):              #Loops to place the rows and column
+            for column in range (0,11):          #Placeholder:self.bookList[column]
                 Button(self, text="Book\nTest", command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
                 coordinateX = coordinateX + 50
             coordinateX = self.coordinateX
             coordinateY = coordinateY + 100
             
-        #Initializing the bookList
-        with open("bookList.csv", 'r') as f:
-            self.bookList = []
-            for book in f:
-                book = book.strip()
-                a = book.split(',')
-                self.bookList.append(a)
+
 
 
 
