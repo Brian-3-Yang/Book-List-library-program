@@ -27,24 +27,29 @@ class Library(tk.Tk):
                 a = book.split(',')
                 self.bookList.append(a)
 
+
+
+        #Setting up the grids
+        self.bookGrid = []
+        for row in range(0,9):              #Grid has 9 rows
+            self.bookGrid.append([])
+
         #Ordering the booklist into a 2D array
         row = 0
         counter = 0
         index = 0
-        self.bookGrid = [[],[],[]]
+        run = True
 
-        while counter <= 3:
-            print(self.bookList[index])
+        while run == True:
             self.bookGrid[row].append(self.bookList[index])
             counter += 1
             index += 1
 
-            if counter == 3:
+            if counter == 11:           #The amount of coloums, everytime it reaches 11 it goes to a new row
                 row += 1
-                print(row)
+                counter = 0
 
             if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
-                print(self.bookList[index])
                 self.bookGrid[row].append(self.bookList[index])
                 break
 
@@ -157,8 +162,8 @@ class Library(tk.Tk):
     def test(self):
         print("Works!")
 
-    def escape(self):
-        self.window.destroy()
+    def escape(self, event=None):
+        self.destroy()
 
     def nothing(self):
         #Does absolutely nothing!
