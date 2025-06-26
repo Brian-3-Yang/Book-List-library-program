@@ -24,8 +24,9 @@ class Library(tk.Tk):
             self.bookList = []
             for book in f:
                 book = book.strip()
-                a = book.split(',')
-                self.bookList.append(a)
+                list = book.split(',')
+                object = Book(list[0], list[1])
+                self.bookList.append(object)
 
 
 
@@ -70,15 +71,11 @@ class Library(tk.Tk):
 
         for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
             for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
-                print(column)
-                Button(self, text=column[0], #coloumn[0] is name of the novel
-                       command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
+                Button(self, text=column.ID, command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
                 coordinateX = coordinateX + 50
             coordinateX = self.coordinateX
             coordinateY = coordinateY + 100
         
-
-
 
 
         self.entrySearch = Entry(self, text="Search...", width=25)
@@ -162,7 +159,8 @@ class Library(tk.Tk):
         pass
 
 class Book:
-    def __init__(self, name, favourite=False, position=None, dateAdded=None, link=None, author=None, comments=None):
+    def __init__(self, ID, name, favourite=False, position=None, dateAdded=None, link=None, author=None, comments=None):
+        self.ID = ID
         self.name = name
         self.favourite = favourite
         self.dateAdded = dateAdded
