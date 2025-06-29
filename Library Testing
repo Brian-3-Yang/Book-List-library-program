@@ -17,7 +17,7 @@ class Library(tk.Tk):
 
         self.filterOptions = ["Alphabetical", "Date added", "Favourite"]    #Options for the dropdown
         self.chosenFilter = StringVar()
-        self.chosenFilter.set("Alphabetical")
+        self.chosenFilter.set("Date added")
 
         #Initializing the bookList
         with open("bookList.csv", 'r') as f:
@@ -28,33 +28,6 @@ class Library(tk.Tk):
                 object = Book(list[0], list[1])
                 self.bookList.append(object)
 
-
-
-        #Setting up the grids
-        self.bookGrid = []
-        for row in range(0,9):              #Grid has 9 rows
-            self.bookGrid.append([])
-
-        #Ordering the booklist into a 2D array
-        row = 0
-        counter = 0
-        index = 0
-        run = True
-
-        while run == True:
-            self.bookGrid[row].append(self.bookList[index])
-            counter += 1
-            index += 1
-
-            if counter == 11:           #The amount of coloums, everytime it reaches 11 it goes to a new row
-                row += 1
-                counter = 0
-
-            if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
-                self.bookGrid[row].append(self.bookList[index])
-                break
-
-
         #Objects initialize
         self.labelLibraryName = Label(self, text="Novels")
 
@@ -62,20 +35,9 @@ class Library(tk.Tk):
         self.buttonAdd = Button(self, text="Add", command=self.addBook)
         self.buttonRemove = Button(self, text="Remove", command=self.remove)
 
-        #Function to set up the books (Initial)
-        self.coordinateX = 30
-        self.coordinateY = 60
-
-        coordinateX = self.coordinateX
-        coordinateY = self.coordinateY
-
-        for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
-            for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
-                Button(self, text=column.ID, command=self.read, width=2, height=5).place(x=coordinateX,y=coordinateY)
-                coordinateX = coordinateX + 50
-            coordinateX = self.coordinateX
-            coordinateY = coordinateY + 100
+        self.createButtons(self.bookList)
         
+
 
 
         self.entrySearch = Entry(self, text="Search...", width=25)
@@ -96,6 +58,10 @@ class Library(tk.Tk):
         #Configs
         self.optionMenuFilter.config(width=7)
         self.bind("<Escape>", self.escape)
+
+        self.previousFilter = "Date added"
+        self.filter()
+        
 
 
 
@@ -142,10 +108,40 @@ class Library(tk.Tk):
         pass
 
     def filter(self):
+        self.currentFilter = self.chosenFilter.get()
+        if self.currentFilter != self.previousFilter:
+            match self.currentFilter:
+                case "Alphabetical":
+
+                    length = len(self.bookList)                 #Takes length of array
+
+                    for i in range(length):                     
+                        smallest = i
+                        for j in range(i+1, length):           
+                            if self.bookList[smallest][1] >= self.bookList[j][1]:     
+                                smallest = j                    
+                                self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
+
+                    self.createBooks(self.bookList)
+
+                case "Date added":
+                    pass
+
+                case "Favourite":
+                    pass
+
+
+
+
+            print("I've been changed")
+        self.previousFilter = self.currentFilter
+        self.after(100, self.filter)
+
         pass
 
     def read(self):
-        print(self)
+
+        print(self.ID) #I think it's returing Librarby cause this prints 1
         pass
 
     def test(self):
@@ -158,8 +154,48 @@ class Library(tk.Tk):
         #Does absolutely nothing!
         pass
 
+    def createBooks(self, array):
+        #Setting up the grids
+        self.bookGrid = []
+        for row in range(0,9):              #Grid has 9 rows
+            self.bookGrid.append([])
+
+        #Ordering the booklist into a 2D array
+        row = 0
+        counter = 0
+        index = 0
+        run = True
+
+        while run == True:
+            self.bookGrid[row].append(self.bookList[index])
+            counter += 1
+            index += 1
+
+            if counter == 11:           #The amount of coloums, everytime it reaches 11 it goes to a new row
+                row += 1
+                counter = 0
+
+            if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
+                self.bookGrid[row].append(self.bookList[index])
+                break
+
+        #Function to set up the books (Initial)
+        self.coordinateX = 30
+        self.coordinateY = 60
+
+        coordinateX = self.coordinateX
+        coordinateY = self.coordinateY
+
+        for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
+            for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
+                column.button = Button(self, text=column.ID, command=self.read, width=2, height=5)
+                column.button.place(x=coordinateX,y=coordinateY)
+                coordinateX = coordinateX + 50
+            coordinateX = self.coordinateX
+            coordinateY = coordinateY + 100
+
 class Book:
-    def __init__(self, ID, name, favourite=False, position=None, dateAdded=None, link=None, author=None, comments=None):
+    def __init__(self, ID, name, favourite=False, position=None, dateAdded=None, link=None, author=None, comments=None, button=None):
         self.ID = ID
         self.name = name
         self.favourite = favourite
@@ -167,6 +203,7 @@ class Book:
         self.links = link
         self.author = author
         self.comments = comments
+        self.button = button
 
 
     def show(self):
@@ -174,6 +211,8 @@ class Book:
 
     def hover(self, event):
         pass
+
+
 
 """
 #Functions
