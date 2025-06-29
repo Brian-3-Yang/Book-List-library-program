@@ -35,7 +35,7 @@ class Library(tk.Tk):
         self.buttonAdd = Button(self, text="Add", command=self.addBook)
         self.buttonRemove = Button(self, text="Remove", command=self.remove)
 
-        self.createButtons(self.bookList)
+        self.createBooks()
         
 
 
@@ -118,11 +118,11 @@ class Library(tk.Tk):
                     for i in range(length):                     
                         smallest = i
                         for j in range(i+1, length):           
-                            if self.bookList[smallest][1] >= self.bookList[j][1]:     
+                            if self.bookList[smallest].name >= self.bookList[j].name:     
                                 smallest = j                    
                                 self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
 
-                    self.createBooks(self.bookList)
+                    self.createBooks()
 
                 case "Date added":
                     pass
@@ -154,11 +154,11 @@ class Library(tk.Tk):
         #Does absolutely nothing!
         pass
 
-    def createBooks(self, array):
+    def createBooks(self):              #PS Try to destroy the previous buttons cause I don't think they were destroyed
         #Setting up the grids
-        self.bookGrid = []
+        bookGrid = []
         for row in range(0,9):              #Grid has 9 rows
-            self.bookGrid.append([])
+            bookGrid.append([])
 
         #Ordering the booklist into a 2D array
         row = 0
@@ -167,7 +167,7 @@ class Library(tk.Tk):
         run = True
 
         while run == True:
-            self.bookGrid[row].append(self.bookList[index])
+            bookGrid[row].append(self.bookList[index])
             counter += 1
             index += 1
 
@@ -176,7 +176,7 @@ class Library(tk.Tk):
                 counter = 0
 
             if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
-                self.bookGrid[row].append(self.bookList[index])
+                bookGrid[row].append(self.bookList[index])
                 break
 
         #Function to set up the books (Initial)
@@ -186,8 +186,8 @@ class Library(tk.Tk):
         coordinateX = self.coordinateX
         coordinateY = self.coordinateY
 
-        for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
-            for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
+        for row in range(0,len(bookGrid)):              #Loops to place the rows and column
+            for column in bookGrid[row]:          #Placeholder:self.bookList[column]
                 column.button = Button(self, text=column.ID, command=self.read, width=2, height=5)
                 column.button.place(x=coordinateX,y=coordinateY)
                 coordinateX = coordinateX + 50
