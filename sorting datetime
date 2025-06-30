@@ -1,0 +1,46 @@
+import datetime
+
+def selection_sort(array):
+    length = len(array)                 
+
+
+
+
+    for i in range(length):                     #loops through the array (index 1)
+        smallest = i                            #initializing the smallest current number 
+        for j in range(i+1, length):            #does another loop (index 2)  
+            if array[smallest][0] >= array[j][0]:     #if the smallest current number is bigger than the current index (index 2),
+                smallest = j                    #the current index (index 2) then becomes the smallest number
+        array[i], array[smallest] = array[smallest], array[i]   #after the loop, swaps the smallest number with index 1.
+    return array                                #Returns the sorted array
+
+with open("date testing.csv", "r") as f:
+    data = []
+    for line in f:
+        line = line.strip()
+        line = line.split(',')
+
+        line[0] = line[0].split()
+        data.append(line)
+
+
+    for i in data:
+        dateData = i[0]
+
+        year = int(i[0][0])
+        month = int(i[0][1])
+        date = int(i[0][2])
+        hour = int(i[0][3])
+        minute = int(i[0][4])
+
+        date = datetime.datetime(year, month, date, hour, minute)
+        i[0] = date
+
+
+
+
+
+array = data
+print(data)
+print(selection_sort(array))
+
