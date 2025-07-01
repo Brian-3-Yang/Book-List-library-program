@@ -1,5 +1,11 @@
 import tkinter as tk
 from tkinter import *
+import datetime
+import requests 
+
+
+
+
 
 #Classes
 class Library(tk.Tk):
@@ -20,13 +26,7 @@ class Library(tk.Tk):
         self.chosenFilter.set("Date added")
 
         #Initializing the bookList
-        with open("bookList.csv", 'r') as f:
-            self.bookList = []
-            for book in f:
-                book = book.strip()
-                list = book.split(',')
-                object = Book(list[0], list[1])
-                self.bookList.append(object)
+        self.read()
 
         #Objects initialize
         self.labelLibraryName = Label(self, text="Novels")
@@ -36,9 +36,6 @@ class Library(tk.Tk):
         self.buttonRemove = Button(self, text="Remove", command=self.remove)
 
         self.createBooks()
-        
-
-
 
         self.entrySearch = Entry(self, text="Search...", width=25)
 
@@ -75,7 +72,7 @@ class Library(tk.Tk):
         print("Here's what the current library list looks like")
         print(self.bookList)
             
-    def addBook(self):
+    def addBook(self):          #PS this needs to read current time and place it down
         addABook = Toplevel(self)  # Create a new window
         addABook.title("Add Book")
         addABook.geometry("600x500")  
@@ -92,7 +89,7 @@ class Library(tk.Tk):
         link.place(x=30,y=450)
         comments.place(x=350,y=150)
 
-        Button(addABook, text="Cancel", command=self.nothing).place(x=400,y=350)
+        Button(addABook, text="Cancel", command=self.cancel).place(x=400,y=350)
         Button(addABook, text="Add", command=lambda: self.add(bookName.get(), link.get(), comments.get())).place(x=500,y=350)
 
     def add(self, title, link=None, comments=None, favourite=""):
@@ -109,40 +106,125 @@ class Library(tk.Tk):
 
     def filter(self):
         self.currentFilter = self.chosenFilter.get()
+
         if self.currentFilter != self.previousFilter:
             match self.currentFilter:
                 case "Alphabetical":
-
+                    self.read()
                     length = len(self.bookList)                 #Takes length of array
 
-                    for i in range(length):                     
+                    for i in range(length):
+                        #print(f"i: {i} | self.bookList[i].name: {self.bookList[i].name}")
                         smallest = i
                         for j in range(i+1, length):           
-                            if self.bookList[smallest].name >= self.bookList[j].name:     
+                            if self.bookList[smallest].ID >= self.bookList[j].ID:     
                                 smallest = j                    
                                 self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
 
+                    self.destroyBooks()
                     self.createBooks()
 
                 case "Date added":
-                    pass
+                    self.read()
+                    length = len(self.bookList)                 #Takes length of array
+
+                    for i in range(length):
+                        #print(f"i: {i} | self.bookList[i].name: {self.bookList[i].name}")
+                        smallest = i
+                        for j in range(i+1, length):           
+                            if self.bookList[smallest].dateAdded >= self.bookList[j].dateAdded:     
+                                smallest = j                    
+                                self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
+
+                    self.destroyBooks()
+                    self.createBooks()
 
                 case "Favourite":
-                    pass
+                    self.read()
+                    toBeRemoved = []
+                    for i in self.bookList:
+                        if i.favourite != True:
+                            toBeRemoved.append(i)
+                    
+                    for i in toBeRemoved:
+                        self.bookList.remove(i)
 
 
+                    self.destroyBooks()
+                    self.createBooks()
 
-
-            print("I've been changed")
         self.previousFilter = self.currentFilter
         self.after(100, self.filter)
 
-        pass
+
 
     def read(self):
+        with open("bookList.csv", 'r') as f:
+            self.bookList = []
+            for book in f:
+                book = book.strip()
+                list = book.split(',')  #ID, Name, Date, Favourite
+                date = list[2]
+                date = date.split()
 
-        print(self.ID) #I think it's returing Librarby cause this prints 1
-        pass
+                for i in range(0, len(date)):
+                    date[i] = int(date[i])
+
+                list[2] = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
+                object = Book(list[0], list[1], list[2], list[3])
+                self.bookList.append(object)
+
+    def createBooks(self):              #PS Try to destroy the previous buttons cause I don't think they were destroyed
+
+        #Setting/Resetting up the grids
+        self.bookGrid = []
+        self.buttonList = []
+
+        for row in range(0,9):              #Grid has 9 rows
+            self.bookGrid.append([])
+
+        #Ordering the booklist into a 2D array
+        row = 0
+        counter = 0
+        index = 0
+        run = True
+
+
+        while run == True:
+            self.bookGrid[row].append(self.bookList[index])   
+            counter += 1
+            index += 1
+
+            if counter == 11:           #The amount of coloums, everytime it reaches 11 it goes to a new row
+                row += 1
+                counter = 0
+
+            if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
+                self.bookGrid[row].append(self.bookList[index])
+                break
+
+        #Function to set up the books (Initial)
+        self.coordinateX = 30
+        self.coordinateY = 60
+
+        coordinateX = self.coordinateX
+        coordinateY = self.coordinateY
+
+        for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
+            for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
+                column.button = Button(self, text=column.ID, command=self.read, width=2, height=5)
+                self.buttonList.append(column.button)
+                column.button.place(x=coordinateX,y=coordinateY)
+                coordinateX = coordinateX + 50
+            coordinateX = self.coordinateX
+            coordinateY = coordinateY + 100
+
+    def destroyBooks(self):
+        for button in self.buttonList:
+            button.destroy()
+        self.buttonList = []
+
+
 
     def test(self):
         print("Works!")
@@ -154,52 +236,19 @@ class Library(tk.Tk):
         #Does absolutely nothing!
         pass
 
-    def createBooks(self):              #PS Try to destroy the previous buttons cause I don't think they were destroyed
-        #Setting up the grids
-        bookGrid = []
-        for row in range(0,9):              #Grid has 9 rows
-            bookGrid.append([])
+    def cancel(self):
+        pass
 
-        #Ordering the booklist into a 2D array
-        row = 0
-        counter = 0
-        index = 0
-        run = True
 
-        while run == True:
-            bookGrid[row].append(self.bookList[index])
-            counter += 1
-            index += 1
-
-            if counter == 11:           #The amount of coloums, everytime it reaches 11 it goes to a new row
-                row += 1
-                counter = 0
-
-            if self.bookList[index] == self.bookList[-1]:       #If index is last entry stop the loop the code
-                bookGrid[row].append(self.bookList[index])
-                break
-
-        #Function to set up the books (Initial)
-        self.coordinateX = 30
-        self.coordinateY = 60
-
-        coordinateX = self.coordinateX
-        coordinateY = self.coordinateY
-
-        for row in range(0,len(bookGrid)):              #Loops to place the rows and column
-            for column in bookGrid[row]:          #Placeholder:self.bookList[column]
-                column.button = Button(self, text=column.ID, command=self.read, width=2, height=5)
-                column.button.place(x=coordinateX,y=coordinateY)
-                coordinateX = coordinateX + 50
-            coordinateX = self.coordinateX
-            coordinateY = coordinateY + 100
 
 class Book:
-    def __init__(self, ID, name, favourite=False, position=None, dateAdded=None, link=None, author=None, comments=None, button=None):
+    def __init__(self, ID, name, dateAdded, #dateAdded in the format: year month date hours minutes seconds" (seperated by spaces)
+                 favourite=False, link=None, author=None, comments=None, button=None):
         self.ID = ID
         self.name = name
-        self.favourite = favourite
         self.dateAdded = dateAdded
+
+        self.favourite = bool(favourite)
         self.links = link
         self.author = author
         self.comments = comments
@@ -211,7 +260,6 @@ class Book:
 
     def hover(self, event):
         pass
-
 
 
 """
