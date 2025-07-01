@@ -5,8 +5,6 @@ import requests
 
 
 
-
-
 #Classes
 class Library(tk.Tk):
     def __init__(self, ID):
@@ -58,10 +56,7 @@ class Library(tk.Tk):
 
         self.previousFilter = "Date added"
         self.filter()
-        
-
-
-
+    
     def showall(self):
         print(f"Books currently in the library: {len(self.bookList)}")
         counter = 0
@@ -89,17 +84,56 @@ class Library(tk.Tk):
         link.place(x=30,y=450)
         comments.place(x=350,y=150)
 
-        Button(addABook, text="Cancel", command=addABook.destroy).place(x=400,y=350)
-        Button(addABook, text="Add", command=lambda: self.add(bookName.get(), link.get(), comments.get())).place(x=500,y=350)
+        Button(addABook, text="Cancel", command=addABook.destroy).place(x=400,y=350)    
+        Button(addABook, text="Add", command=lambda: self.add(bookName.get(), datetime.now().strftime("%Y %m %d %M %S"),
+                                                              link=link.get(), comments=comments.get())).place(x=500,y=350)
 
-    def add(self, title, link=None, comments=None, favourite=""):
-        print(title)
+    def add(self, name, date, favourite="",
+            link=None, comments=None):
+        
         with open ("bookList.csv", "a") as f:
-            f.write(f"{title},{link},{comments},{favourite}") 
+            f.write(f"{name},{date},{favourite},{comments},{link}") 
             f.write("\n")
 
-    def remove(self):
-        pass
+    def remove(self):       #Search function here
+        self.removeABook = Toplevel(self)  # Create a new window
+        self.removeABook.title("Remove Book")
+        self.removeABook.geometry("400x300")
+
+        Label(self.removeABook, text="REMOVE", font=("Impact", 25)).place(x=170,y=100)
+        self.search = Entry(self.removeABook, text="", width=43)
+        self.search.insert(0, "")
+        self.search.place(x=0, y=150)
+        self.previousSearch = ""
+
+        self.searching()
+
+    def searching(self):
+        self.currentSearch = self.search.get()
+
+        self.found = []
+        currentx = 0
+        currenty = 50
+        if self.currentSearch != self.previousSearch:
+            for i in self.found:        #Clears existing Labels
+                i.destroy()
+            
+            self.searches = []
+            for i in self.bookList:
+                if self.currentSearch in i.name:
+                    match = Label(self.removeABook, text=i.name)
+                    match.place(x=currentx, y=currenty)
+                    self.found.append(match)
+            
+            for i in self.found:
+                
+                pass
+
+
+
+
+        self.previousSearch = self.currentSearch
+        self.after(100, self.searching)
 
     def change(self):
         pass
@@ -117,7 +151,7 @@ class Library(tk.Tk):
                         #print(f"i: {i} | self.bookList[i].name: {self.bookList[i].name}")
                         smallest = i
                         for j in range(i+1, length):           
-                            if self.bookList[smallest].ID >= self.bookList[j].ID:     
+                            if self.bookList[smallest].name >= self.bookList[j].name:     
                                 smallest = j                    
                                 self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
 
@@ -131,7 +165,7 @@ class Library(tk.Tk):
                     for i in range(length):
                         #print(f"i: {i} | self.bookList[i].name: {self.bookList[i].name}")
                         smallest = i
-                        for j in range(i+1, length):           
+                        for j in range(i+1, length):
                             if self.bookList[smallest].dateAdded >= self.bookList[j].dateAdded:     
                                 smallest = j                    
                                 self.bookList[i], self.bookList[smallest] = self.bookList[smallest], self.bookList[i]   
@@ -156,21 +190,19 @@ class Library(tk.Tk):
         self.previousFilter = self.currentFilter
         self.after(100, self.filter)
 
-
-
     def read(self):
         with open("bookList.csv", 'r') as f:
             self.bookList = []
             for book in f:
                 book = book.strip()
                 list = book.split(',')  #ID, Name, Date, Favourite
-                date = list[2]
+                date = list[1]
                 date = date.split()
 
                 for i in range(0, len(date)):
                     date[i] = int(date[i])
 
-                list[2] = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
+                list[1] = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
                 object = Book(list[0], list[1], list[2], list[3])
                 self.bookList.append(object)
 
@@ -212,7 +244,7 @@ class Library(tk.Tk):
 
         for row in range(0,len(self.bookGrid)):              #Loops to place the rows and column
             for column in self.bookGrid[row]:          #Placeholder:self.bookList[column]
-                column.button = Button(self, text=column.ID, command=self.read, width=2, height=5)
+                column.button = Button(self, text=column.name, command=self.read, width=2, height=5)
                 self.buttonList.append(column.button)
                 column.button.place(x=coordinateX,y=coordinateY)
                 coordinateX = coordinateX + 50
@@ -238,13 +270,13 @@ class Library(tk.Tk):
 
 
 class Book:
-    def __init__(self, ID, name, dateAdded, #dateAdded in the format: year month date hours minutes seconds" (seperated by spaces)
-                 favourite=False, link=None, author=None, comments=None, button=None):
-        self.ID = ID
+    def __init__(self, name, dateAdded, #dateAdded in the format: year month date hours minutes seconds" (seperated by spaces)
+                 favourite=False, title=None, link=None, author=None, comments=None, button=None):
         self.name = name
         self.dateAdded = dateAdded
 
         self.favourite = bool(favourite)
+        self.title = title
         self.links = link
         self.author = author
         self.comments = comments
@@ -252,7 +284,7 @@ class Book:
 
 
     def show(self):
-        print(self.name, self.position, "favourite:", self.favourite)
+        print(self.name, "favourite:", self.favourite)
 
     def hover(self, event):
         pass
