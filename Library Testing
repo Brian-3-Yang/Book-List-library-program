@@ -89,7 +89,7 @@ class Library(tk.Tk):
         link.place(x=30,y=450)
         comments.place(x=350,y=150)
 
-        Button(addABook, text="Cancel", command=self.cancel).place(x=400,y=350)
+        Button(addABook, text="Cancel", command=addABook.destroy).place(x=400,y=350)
         Button(addABook, text="Add", command=lambda: self.add(bookName.get(), link.get(), comments.get())).place(x=500,y=350)
 
     def add(self, title, link=None, comments=None, favourite=""):
@@ -224,8 +224,6 @@ class Library(tk.Tk):
             button.destroy()
         self.buttonList = []
 
-
-
     def test(self):
         print("Works!")
 
@@ -236,8 +234,6 @@ class Library(tk.Tk):
         #Does absolutely nothing!
         pass
 
-    def cancel(self):
-        pass
 
 
 
