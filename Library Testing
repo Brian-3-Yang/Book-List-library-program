@@ -31,7 +31,7 @@ class Library(tk.Tk):
 
         self.buttonEscape = Button(self, text="Escape", command=self.escape)
         self.buttonAdd = Button(self, text="Add", command=self.addBook)
-        self.buttonRemove = Button(self, text="Remove", command=self.remove)
+        self.buttonRemove = Button(self, text="Remove", command=self.removeBook)
 
         self.createBooks()
 
@@ -95,46 +95,59 @@ class Library(tk.Tk):
             f.write(f"{name},{date},{favourite},{comments},{link}") 
             f.write("\n")
 
-    def remove(self):       #Search function here
+    def removeBook(self):       #Search function here
         self.removeABook = Toplevel(self)  # Create a new window
         self.removeABook.title("Remove Book")
-        self.removeABook.geometry("400x300")
+        self.removeABook.geometry("400x500")
 
         Label(self.removeABook, text="REMOVE", font=("Impact", 25)).place(x=170,y=100)
         self.search = Entry(self.removeABook, text="", width=43)
         self.search.insert(0, "")
         self.search.place(x=0, y=150)
         self.previousSearch = ""
+        self.found = []
 
         self.searching()
+
+    def remove(self, name):
+        print(name)
+        pass
 
     def searching(self):
         self.currentSearch = self.search.get()
 
-        self.found = []
-        currentx = 0
-        currenty = 50
-        if self.currentSearch != self.previousSearch:
-            for i in self.found:        #Clears existing Labels
-                i.destroy()
-            
-            self.searches = []
-            for i in self.bookList:
-                if self.currentSearch in i.name:
-                    match = Label(self.removeABook, text=i.name)
-                    match.place(x=currentx, y=currenty)
-                    self.found.append(match)
-            
-            for i in self.found:
-                
-                pass
+        if self.currentSearch == "":            #If entry is empty, do nothing
+            if self.found != []:                            #Clears current results
+                    for i in self.found:                        #Clears all the buttons from screen
+                        i.destroy()
+                    self.found = []                             #Resets the array of found items
+            self.after(100, self.searching)
+        
+        else:
+            if self.currentSearch != self.previousSearch:       #When search changes, run the code
+                currentx = 0
+                currenty = 180
+
+                if self.found != []:                            #Clears current results
+                    for i in self.found:                        #Clears all the buttons from screen
+                        i.destroy()
+                    self.found = []                             #Resets the array of found items
+
+                for i in self.bookList:                         #
+                    if self.currentSearch in i.name:
+                        match = Button(self.removeABook, text=i.name, command=lambda: self.remove(match.cget('text')),height=2, width=40)
+                        match.place(x=currentx, y=currenty)
+                        self.found.append(match)
+                        currenty += 43
+                    
+            self.previousSearch = self.currentSearch
+            self.after(100, self.searching)
+
+    def searchButtons(self):
 
 
-
-
-        self.previousSearch = self.currentSearch
-        self.after(100, self.searching)
-
+        
+        pass
     def change(self):
         pass
 
