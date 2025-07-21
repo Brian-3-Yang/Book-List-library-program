@@ -23,8 +23,8 @@ class Library(tk.Tk):
         self.LibraryName = Label(self, text="Novels")
 
         self.buttonEscape = Button(self, text="Escape", command=self.escape)
-        self.buttonAdd = Button(self, text="Add", command=self.nothing)
-        self.buttonRemove = Button(self, text="Remove", command=self.nothing)
+        self.buttonAdd = Button(self, text="Add", command=self.windowAddBook)
+        self.buttonRemove = Button(self, text="Remove", command=self.windowRemoveBook)
 
         self.entrySearch = Entry(self, text="Search...", width=25)              
 
@@ -44,8 +44,101 @@ class Library(tk.Tk):
         self.previousFilter = "Date added"
 
         self.initializeBooks()
+        self.placeBooks()
 
-    def readFile(self):
+#-----------------------------------------------------------
+
+    def windowAddBook(self):
+        def add(name="nam", date="", link="", comments=""):
+            with open("bookList.csv", 'a') as file:     #Use request to find title ig also use date as API
+                name = name
+                dateAdded = date
+                favourite = ""
+                title = ""
+                link = link
+                comments = comments
+                file.write(f"{name},{dateAdded},{favourite},{title}\n")
+
+
+        addABook = Toplevel(self)  # Create a new window
+        addABook.title("Add Book")
+        addABook.geometry("600x500")  
+        Label(addABook, text="Name").place(x=30,y=250)
+        Label(addABook, text="Link").place(x=30,y=400)
+        Label(addABook, text="Description/Comments").place(x=350,y=100)
+        Button(addABook, text="Insert Image",width=10,height=12).place(x=60,y=30)
+
+        nameEntry = Entry(addABook, bg="white", fg="black")
+        linkEntry = Entry(addABook, bg="white", fg="black")
+        commentsEntry = Entry(addABook, bg="white", fg="black")
+
+        nameEntry.place(x=30,y=300)
+        linkEntry.place(x=30,y=450)
+        commentsEntry.place(x=350,y=150)
+
+        Button(addABook, text="Cancel", command=addABook.destroy).place(x=400,y=350)    
+        Button(addABook, text="Add", command=lambda: add(nameEntry.get(), datetime.now().strftime("%Y %m %d %M %S"),
+                                                              link=linkEntry.get(), comments=commentsEntry.get())).place(x=500,y=350)
+
+
+    def windowRemoveBook(self):
+
+        def searching():
+            removeABook.currentSearch = removeABook.search.get()
+
+            if removeABook.currentSearch == "":         
+                if removeABook.found != []:                          
+                        for i in removeABook.found:                     
+                            i.destroy()
+                        removeABook.found = []                         
+                removeABook.after(100, searching)              
+            
+            else:
+                if removeABook.currentSearch != removeABook.previousSearch:     
+                    removeABook.currentCoordinateX = 0                  #Inital coordinate of X
+                    removeABook.currentCoordinateY = 180                #Initial coordinate of Y
+
+                    if removeABook.found != []:                        
+                        for book in removeABook.found:                       
+                            book.destroy()
+                        removeABook.found = []                           
+
+                    for book in removeABook.self.LibraryBookList:
+                        if self.currentSearch in book.name:
+                            match = Button(removeABook, text=book.name, command=lambda: destroy,height=2, width=40)
+                            match.place(x=removeABook.currentCoordinateX, y=removeABook.currentCoordinateY)
+                            removeABook.found.append(match)
+                            removeABook.currentCoordinateY += 43
+                        
+                removeABook.previousSearch = removeABook.currentSearch
+                removeABook.after(100, searching)
+                
+        def destroy(self):
+            pass
+
+        removeABook = Toplevel(self)       
+        removeABook.title("Remove Book")
+        removeABook.geometry("400x500")
+        removeABook.self = self
+
+        #removeABook.initialCoordinateX = 0
+        #removeABook.initalCoordinateY = 180
+
+        Label(removeABook, text="REMOVE", font=("Impact", 25)).place(x=170,y=100)
+        Button(removeABook, text="ESC", command=destroy).place(x=0,y=0)
+
+        removeABook.search = Entry(removeABook, text="", width=43)
+        removeABook.search.insert(0, "")           #Sets the default value of the entry to ""
+        removeABook.search.place(x=0, y=150)
+        removeABook.previousSearch = ""            #Initializes the previous search for the search method
+        removeABook.previousSearch = ""
+        removeABook.found = []
+
+        searching()                    
+
+#-----------------------------------------------------------
+
+    def initializeBooks(self):
         with open("bookList.csv", 'r') as f:            
             self.LibraryBookList = []
             for book in f:                      #Loops through every line
@@ -58,14 +151,21 @@ class Library(tk.Tk):
                     date[i] = int(date[i])  
                 list[1] = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
 
+                placeholder = Book(self)
+                placeholder.name = list[0]
+                placeholder.date = list[1]
+                placeholder.favourite = list[2]
+                placeholder.title = list[3]
+                placeholder.configure(text=placeholder.name, command=placeholder.info, width=2, height=5)
 
-    def initializeBooks(self):
+                self.LibraryBookList.append(placeholder)
 
-        self.initialCoordinateX = 30
-        self.initialCoordinateY = 60
+    def placeBooks(self):
+        initialCoordinateX = 30
+        initialCoordinateY = 60
 
-        currentCoordinateX = self.initialCoordinateX                  #Creates a new variable to change
-        currentCoordinateY = self.initialCoordinateY
+        currentCoordinateX = initialCoordinateX                  #Creates a new variable to change
+        currentCoordinateY = initialCoordinateY
 
         amountOfBooks = len(self.LibraryBookList)
         currentAmountOfBooks = 0
@@ -73,21 +173,23 @@ class Library(tk.Tk):
         for row in range(0,3):
             if currentAmountOfBooks >= amountOfBooks:
                 break
+
             for column in range(0,9):
                 if currentAmountOfBooks >= amountOfBooks:
                     break
-
+                
                 currentAmountOfBooks += 1
-                book = Book(self, text="place\nholder", width=2, height=5)     
-                book.configure(command=book.nothing)
-                book.place(x=currentCoordinateX,y=currentCoordinateY)  
-                self.LibraryBookList.append(book)                                   #List so the books can be accessed for searching and filtering
-                currentCoordinateX = currentCoordinateX + 50                        #Increments the x every iteration to place the next book
-            currentCoordinateX = self.initialCoordinateX                            #Resets to the original x value every new row
-            currentCoordinateY = currentCoordinateY + 100                           #Increments the y value every new row.
+                index = row*9 + column
+                print(index)
+                self.LibraryBookList[index].place(x=currentCoordinateX, y=currentCoordinateY)
+                currentCoordinateX += 50
 
+            currentCoordinateX = initialCoordinateX
+            currentCoordinateY += 100
 
-        pass
+    def hideBooks(self):
+        for book in self.LibraryBookList:
+            book.destroy()
 
     def escape(self, event=None):
         self.destroy()
@@ -100,8 +202,8 @@ class Book(tk.Button):              #Inherits from tk button
         tk.Button.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
-    def press(self):
-        print(self.number)
+    def info(self):
+        print(self.name)
     
     def nothing(self):
         pass
