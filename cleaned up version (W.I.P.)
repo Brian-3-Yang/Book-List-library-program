@@ -1,16 +1,15 @@
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import *
-import datetime                             #Datetime API
-import requests 
+from datetime import datetime 
+import requests
 
-
-
-class Library(tk.Tk): 
+class library(tk.Tk): 
     def __init__(self, ID):
         super().__init__()                  
         self.ID = ID                        
         self.bookList = []                  
-        self.ascending = True              
+        self.ascending = True
     
         self.title("")               
         self.geometry("650x650")                          
@@ -43,21 +42,36 @@ class Library(tk.Tk):
         self.bind("<Escape>", self.escape)
         self.previousFilter = "Date added"
 
+        self.LibraryBookList = []                           #Initalizes the attribute for the self.hideBooks method
         self.initializeBooks()
         self.placeBooks()
+        self.filterBooks()
 
 #-----------------------------------------------------------
 
     def windowAddBook(self):
-        def add(name="nam", date="", link="", comments=""):
-            with open("bookList.csv", 'a') as file:     #Use request to find title ig also use date as API
+        def add(name, date, link="", comments=""):
+            if name == "":
+                messagebox.showerror(title="ERROR", message="Name is empty")
+                return
+            if not isinstance(name, str):
+                messagebox.showerror(title="ERROR", message="Name is not a string")
+                return
+
+            with open("bookList.csv", 'a') as file:
                 name = name
                 dateAdded = date
                 favourite = ""
-                title = ""
+                title = "placeholder title"
                 link = link
                 comments = comments
-                file.write(f"{name},{dateAdded},{favourite},{title}\n")
+                file.write(f"{name},{dateAdded},{favourite},{title},\n")
+            
+            addABook.destroy()
+            self.hideBooks()
+            self.initializeBooks()
+            self.placeBooks()
+
 
 
         addABook = Toplevel(self)  # Create a new window
@@ -77,44 +91,88 @@ class Library(tk.Tk):
         commentsEntry.place(x=350,y=150)
 
         Button(addABook, text="Cancel", command=addABook.destroy).place(x=400,y=350)    
-        Button(addABook, text="Add", command=lambda: add(nameEntry.get(), datetime.now().strftime("%Y %m %d %M %S"),
+        Button(addABook, text="Add", command=lambda: add(name=nameEntry.get(), date=datetime.now().strftime("%Y %m %d %H %M %S"),
                                                               link=linkEntry.get(), comments=commentsEntry.get())).place(x=500,y=350)
 
-
     def windowRemoveBook(self):
-
         def searching():
             removeABook.currentSearch = removeABook.search.get()
-
-            if removeABook.currentSearch == "":         
-                if removeABook.found != []:                          
-                        for i in removeABook.found:                     
-                            i.destroy()
-                        removeABook.found = []                         
-                removeABook.after(100, searching)              
             
-            else:
-                if removeABook.currentSearch != removeABook.previousSearch:     
-                    removeABook.currentCoordinateX = 0                  #Inital coordinate of X
-                    removeABook.currentCoordinateY = 180                #Initial coordinate of Y
+            if removeABook.currentSearch == "":
+                clearFound()
+                removeABook.after(100, searching)      
 
-                    if removeABook.found != []:                        
-                        for book in removeABook.found:                       
-                            book.destroy()
-                        removeABook.found = []                           
+            else:
+                if removeABook.currentSearch != removeABook.previousSearch:           #When search changes, run the code
+                    currentCoordinateX = 0
+                    currentCoordinateY = 180
+
+                    clearFound()
 
                     for book in removeABook.self.LibraryBookList:
-                        if self.currentSearch in book.name:
-                            match = Button(removeABook, text=book.name, command=lambda: destroy,height=2, width=40)
-                            match.place(x=removeABook.currentCoordinateX, y=removeABook.currentCoordinateY)
+                        if removeABook.currentSearch in book.name:
+                            match = Button(removeABook, text=book.name, command=lambda: remove(match),height=2, width=40)
+                            match.place(x=currentCoordinateX, y=currentCoordinateY)
                             removeABook.found.append(match)
-                            removeABook.currentCoordinateY += 43
-                        
+                            currentCoordinateY += 43
                 removeABook.previousSearch = removeABook.currentSearch
                 removeABook.after(100, searching)
+
+        def clearFound():
+            if removeABook.found != []:
+                for book in removeABook.found:
+                    book.destroy()
+                removeABook.found = []
+
+        def remove(match):
+            for book in self.LibraryBookList:
+                matching = True
+                bookAttributes = [book.name, book.date, book.favourite, book.title, book.comments]
+                matchAttributes = [match.name, match.date, match.favourite, match.title, match.comments]
+
+                if len(matchAttributes) == len(bookAttributes):     #Validations
+                    range = len(matchAttributes)
+                else:
+                    messagebox.showerror(title="ERROR",text="Attribute is missing")
+                    return
                 
-        def destroy(self):
+                for index in range:
+                    if bookAttributes[index] != matchAttributes[index]:
+                        matching = False
+                        break
+                
+                if matching == True:
+                    self.LibraryBookList.remove(book)
+                    with open("bookList.csv", "r") as previousFile:
+                        books = ""
+                        for line in previousFile:
+                            inside = False
+                            sentence = line.strip()
+                            check = sentence.split(',')
+                            print(sentence)
+                            for i in check:
+                                if i == word:
+                                    inside = True
+                                
+                            if inside != True:
+                                sentence = sentence + '\n'
+                                books = books + sentence
+
+                        with open("testing.csv", 'w') as newFile:
+                            newFile.write(books)
+                    break
+
+            print("I'm working as intended")
+                #for index in book:
+                    #pass
+
+            #with open("bookList", "r") as previousFile:
+                #with open("bookList", 'w') as newFile:
+                    #newFile.write(books)
+
+        def nothing():
             pass
+
 
         removeABook = Toplevel(self)       
         removeABook.title("Remove Book")
@@ -125,13 +183,12 @@ class Library(tk.Tk):
         #removeABook.initalCoordinateY = 180
 
         Label(removeABook, text="REMOVE", font=("Impact", 25)).place(x=170,y=100)
-        Button(removeABook, text="ESC", command=destroy).place(x=0,y=0)
+        Button(removeABook, text="ESC", command=removeABook.destroy).place(x=0,y=0)
 
         removeABook.search = Entry(removeABook, text="", width=43)
         removeABook.search.insert(0, "")           #Sets the default value of the entry to ""
         removeABook.search.place(x=0, y=150)
         removeABook.previousSearch = ""            #Initializes the previous search for the search method
-        removeABook.previousSearch = ""
         removeABook.found = []
 
         searching()                    
@@ -139,6 +196,7 @@ class Library(tk.Tk):
 #-----------------------------------------------------------
 
     def initializeBooks(self):
+        self.hideBooks()
         with open("bookList.csv", 'r') as f:            
             self.LibraryBookList = []
             for book in f:                      #Loops through every line
@@ -149,19 +207,22 @@ class Library(tk.Tk):
 
                 for i in range(0, len(date)):   #Converts the date data into integers to be used in the datetime.datetime function
                     date[i] = int(date[i])  
-                list[1] = datetime.datetime(date[0], date[1], date[2], date[3], date[4], date[5])
+                list[1] = datetime(date[0], date[1], date[2], date[3], date[4], date[5])
 
-                placeholder = Book(self)
+
+                placeholder = bookClass(self)
                 placeholder.name = list[0]
                 placeholder.date = list[1]
-                placeholder.favourite = list[2]
+                placeholder.favourite = bool(list[2])
                 placeholder.title = list[3]
+                placeholder.comments = list[4]
+
                 placeholder.configure(text=placeholder.name, command=placeholder.info, width=2, height=5)
 
                 self.LibraryBookList.append(placeholder)
 
     def placeBooks(self):
-        initialCoordinateX = 30
+        initialCoordinateX = 40
         initialCoordinateY = 60
 
         currentCoordinateX = initialCoordinateX                  #Creates a new variable to change
@@ -170,17 +231,19 @@ class Library(tk.Tk):
         amountOfBooks = len(self.LibraryBookList)
         currentAmountOfBooks = 0
 
-        for row in range(0,3):
+        amountOfRows = 3
+        amountOfColumns = 11
+
+        for row in range(0, amountOfRows):
             if currentAmountOfBooks >= amountOfBooks:
                 break
 
-            for column in range(0,9):
+            for column in range(0,amountOfColumns):
                 if currentAmountOfBooks >= amountOfBooks:
                     break
                 
                 currentAmountOfBooks += 1
-                index = row*9 + column
-                print(index)
+                index = row*amountOfColumns + column
                 self.LibraryBookList[index].place(x=currentCoordinateX, y=currentCoordinateY)
                 currentCoordinateX += 50
 
@@ -191,24 +254,75 @@ class Library(tk.Tk):
         for book in self.LibraryBookList:
             book.destroy()
 
+    def filterBooks(self):
+        self.currentFilter = self.chosenFilter.get()
+
+        if self.currentFilter != self.previousFilter:
+            self.initializeBooks()
+            match self.currentFilter:
+                case "Alphabetical":
+                    length = len(self.LibraryBookList)                 #Takes length of array
+
+                    for i in range(length):
+                        smallest = i
+                        for j in range(i+1, length):           
+                            if self.LibraryBookList[smallest].name >= self.LibraryBookList[j].name:     
+                                smallest = j                    
+                                self.LibraryBookList[i], self.LibraryBookList[smallest] = self.LibraryBookList[smallest], self.LibraryBookList[i]
+
+                    self.placeBooks()
+
+                case "Date added":
+                    length = len(self.LibraryBookList)                 #Takes length of array
+
+                    for i in range(length):
+                        smallest = i
+                        for j in range(i+1, length):
+                            if self.LibraryBookList[smallest].date >= self.LibraryBookList[j].date:     
+                                smallest = j                    
+                                self.LibraryBookList[i], self.LibraryBookList[smallest] = self.LibraryBookList[smallest], self.LibraryBookList[i]   
+                    
+                    self.placeBooks()
+
+                case "Favourite":
+                    toBeRemoved = []
+                    for i in self.LibraryBookList:
+                        if i.favourite != True:
+                            toBeRemoved.append(i)
+                            i.destroy()
+
+                    for i in toBeRemoved:
+                        self.LibraryBookList.remove(i)
+                    
+                    self.placeBooks()
+
+        self.previousFilter = self.currentFilter
+        self.after(100, self.filterBooks)
+
     def escape(self, event=None):
         self.destroy()
 
     def nothing(self):
         pass
 
-class Book(tk.Button):              #Inherits from tk button
+
+
+class bookClass(tk.Button):              #Inherits from tk button
     def __init__(self, parent, *args, **kwargs):
+        super().__init__()
         tk.Button.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
+        #Contains the following variables:
+        #name, date, favourite, title, comments
+
     def info(self):
-        print(self.name)
-    
+        messagebox.showinfo(title=self.name, message=self.comments)
+
+
     def nothing(self):
         pass
 
-
 if __name__ == "__main__":          #Runs the code
-    window = Library(1)             #Library has ID of 1
+    window = library(1)             #Library has ID of 1
     window.mainloop()
